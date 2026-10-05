@@ -1,0 +1,148 @@
+export const AUTOPLAY_DELAY = 8000;
+
+export const heroSlides = [
+  {
+    id: 1,
+    eyebrow: "Contemporary Marketplace",
+    title: "Art that moves.",
+    description:
+      "Discover original works from independent artists and find something worth feeling.",
+    artist: "ArtHub Collection",
+    artistRole: "Curated selection · 2026",
+    category: "Contemporary",
+    image:
+      "https://images.unsplash.com/photo-1541961017774-22349e4a1262?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Explore artworks",
+    primaryHref: "/browse-artworks",
+    secondaryCta: "Meet artists",
+    secondaryHref: "/artists",
+    accent: "coral",
+  },
+  {
+    id: 2,
+    eyebrow: "Digital Frontiers",
+    title: "Beyond the canvas.",
+    description:
+      "Step into a new visual language where technology, imagination, and artistic expression meet.",
+    artist: "Marcus Chen",
+    artistRole: "Digital Artist",
+    category: "Digital Art",
+    image:
+      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Explore digital art",
+    primaryHref: "/browse-artworks?category=Digital",
+    secondaryCta: "View artist",
+    secondaryHref: "/artists/marcus-chen",
+    accent: "gold",
+  },
+  {
+    id: 3,
+    eyebrow: "Timeless Sculpture",
+    title: "Form becomes feeling.",
+    description:
+      "Sculptural works shaped by material, movement, space, and human imagination.",
+    artist: "David Okoro",
+    artistRole: "Sculptor",
+    category: "Sculpture",
+    image:
+      "https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Explore sculpture",
+    primaryHref: "/browse-artworks?category=Sculpture",
+    secondaryCta: "View artist",
+    secondaryHref: "/artists/david-okoro",
+    accent: "coral",
+  },
+  {
+    id: 4,
+    eyebrow: "New Perspectives",
+    title: "See beyond the obvious.",
+    description:
+      "Bold shapes and unexpected compositions created to make you stop, look, and feel.",
+    artist: "Maya Laurent",
+    artistRole: "Abstract Artist",
+    category: "Abstract",
+    image:
+      "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Explore abstracts",
+    primaryHref: "/browse-artworks?category=Abstract",
+    secondaryCta: "Discover artists",
+    secondaryHref: "/artists",
+    accent: "coral",
+  },
+  {
+    id: 5,
+    eyebrow: "The Blue Hour",
+    title: "Quiet moments.",
+    description:
+      "Paintings that slow the world down and turn fleeting moments into something lasting.",
+    artist: "Elias Moreau",
+    artistRole: "Painter",
+    category: "Painting",
+    image:
+      "https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Explore paintings",
+    primaryHref: "/browse-artworks?category=Painting",
+    secondaryCta: "Meet the artist",
+    secondaryHref: "/artists/elias-moreau",
+    accent: "gold",
+  },
+  {
+    id: 6,
+    eyebrow: "Inner Landscape",
+    title: "A world within.",
+    description:
+      "Intimate works created to bring atmosphere, emotion, and depth into your space.",
+    artist: "Sofia Reed",
+    artistRole: "Fine Artist",
+    category: "Fine Art",
+    image:
+      "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Discover fine art",
+    primaryHref: "/browse-artworks?category=Fine-Art",
+    secondaryCta: "View collection",
+    secondaryHref: "/collections",
+    accent: "coral",
+  },
+  {
+    id: 7,
+    eyebrow: "Soft Collision",
+    title: "Where ideas collide.",
+    description:
+      "Contemporary works exploring culture, identity, and the visual language of modern life.",
+    artist: "Amelia Stone",
+    artistRole: "Contemporary Artist",
+    category: "Contemporary",
+    image:
+      "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Explore contemporary",
+    primaryHref: "/browse-artworks?category=Contemporary",
+    secondaryCta: "Discover artists",
+    secondaryHref: "/artists",
+    accent: "gold",
+  },
+  {
+    id: 8,
+    eyebrow: "Forms of Light",
+    title: "Less. More meaningful.",
+    description:
+      "Minimal works where light, space, and form become the entire story.",
+    artist: "Arthur Blake",
+    artistRole: "Minimalist Artist",
+    category: "Minimal",
+    image:
+      "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=1800&q=90",
+    position: "center",
+    primaryCta: "Explore minimal art",
+    primaryHref: "/browse-artworks?category=Minimal",
+    secondaryCta: "View artists",
+    secondaryHref: "/artists",
+    accent: "coral",
+  },
+];
