@@ -325,6 +325,9 @@ export default function Navbar() {
                     strokeWidth={1.5}
                     className="opacity-60 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                   />
+                </Link>
+              )}
+
               {user && (
                 <Link
                   href="/wishlist"
