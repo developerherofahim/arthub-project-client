@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getArtistAnalytics } from "@/lib/api";
 
 export default function StatsCard() {
   const { data: session } = authClient.useSession();
@@ -15,10 +14,9 @@ export default function StatsCard() {
 
   useEffect(() => {
     if (!user?.email) return;
-    fetch(`${API}/analytics/artist/${encodeURIComponent(user.email)}`)
-      .then(r => r.json())
-      .then(data => setStats(data))
-      .catch(() => {})
+    getArtistAnalytics(user.email)
+      .then(setStats)
+      .catch((error) => console.error("Failed to fetch artist analytics:", error))
       .finally(() => setLoading(false));
   }, [user?.email]);
 

@@ -55,7 +55,7 @@ export default function ArtCategories() {
             <h2 className="font-art-display text-4xl sm:text-5xl font-semibold tracking-tight text-art-text mt-2">
               Explore by Category
             </h2>
-            <p className="mt-2 font-art-body text-sm text-art-secondary max-w-lg">
+            <p className="pt-2 font-art-body text-sm text-art-secondary max-w-lg">
               Find works that resonate with your interior aesthetics, architectural spaces, and visual preferences.
             </p>
           </div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Award, ArrowUpRight, Palette } from "lucide-react";
+import { getTopArtists } from "@/lib/api";
 
 export default function TopArtists() {
   const [artists, setArtists] = useState([]);
@@ -12,13 +13,9 @@ export default function TopArtists() {
   useEffect(() => {
     async function fetchTopArtists() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/users/top-artists`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            setArtists(data);
-          }
+        const data = await getTopArtists();
+        if (Array.isArray(data)) {
+          setArtists(data);
         }
       } catch (err) {
         console.error("Error fetching top artists:", err);
@@ -40,7 +37,7 @@ export default function TopArtists() {
           <h2 className="font-art-display text-4xl sm:text-5xl font-semibold tracking-tight text-art-text">
             Top Selling Artists
           </h2>
-          <p className="mt-3 font-art-body text-sm text-art-secondary">
+          <p className="pt-3 font-art-body text-sm text-art-secondary">
             Meet the most celebrated creators on ArtHub whose works are treasured in private collections across the globe.
           </p>
         </div>

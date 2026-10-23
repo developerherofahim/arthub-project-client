@@ -1,11 +1,23 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
+import { redirectToCheckout } from "@/lib/stripe-checkout";
+import { redirectFromArtworkPage } from "./actions";
+import {
+  createArtworkComment,
+  createCheckoutSession,
+  deleteArtworkComment,
+  getArtwork,
+  getUserTransactions,
+  toggleUserWishlist,
+  updateArtworkComment,
+  verifyPayment,
+} from "@/lib/api";
 import {
   ArrowLeft,
   Heart,
@@ -25,8 +37,6 @@ import {
   AlertCircle,
   Crown,
 } from "lucide-react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 /* ── helpers ───────────────────────────────────────── */
 function fmt(n) {
@@ -70,12 +80,10 @@ function CommentItem({ comment, currentUserEmail, isAdmin, onDelete, onEdit }) {
     if (!editText.trim()) return;
     setSaving(true);
     try {
-      const r = await fetch(`${API}/artworks/comments/${comment._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment: editText.trim(), userEmail: currentUserEmail }),
+      await updateArtworkComment(comment._id, {
+        comment: editText.trim(),
+        userEmail: currentUserEmail,
       });
-      if (!r.ok) throw new Error((await r.json()).error || "Failed");
       onEdit({ ...comment, comment: editText.trim() });
       setEditMode(false);
       toast.success("Comment updated");
@@ -144,7 +152,6 @@ function CommentItem({ comment, currentUserEmail, isAdmin, onDelete, onEdit }) {
 /* ── Main Page ─────────────────────────────────────── */
 export default function ArtworkDetailPage() {
   const { id } = useParams();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = authClient.useSession();
   const user = session?.user;
@@ -167,60 +174,58 @@ export default function ArtworkDetailPage() {
 
     if (success === "true" && sessionId && user?.email) {
       (async () => {
+        let shouldRedirect = false;
         try {
-          const r = await fetch(`${API}/payments/verify-payment`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sessionId,
-              type: "purchase",
-              artworkId: artworkId || id,
-              buyerEmail: user.email,
-              buyerName: user.name,
-            }),
+          const data = await verifyPayment({
+            sessionId,
+            type: "purchase",
+            artworkId: artworkId || id,
+            buyerEmail: user.email,
+            buyerName: user.name,
           });
-          const data = await r.json();
           if (data.success) {
             setPurchaseSuccess(true);
             setHasPurchased(true);
             toast.success("🎉 Purchase confirmed! The artwork is yours.");
-            router.replace(`/artworks/${id}`);
+            shouldRedirect = true;
           }
-        } catch (_) { /* silent */ }
+        } catch (error) {
+          console.error("Failed to verify artwork payment:", error);
+        }
+        if (shouldRedirect) {
+          await redirectFromArtworkPage(`/artworks/${id}`);
+        }
       })();
     }
-  }, [searchParams, user, id, router]);
+  }, [searchParams, user, id]);
 
   /* fetch artwork */
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
-        const r = await fetch(`${API}/artworks/${id}`);
-        if (!r.ok) throw new Error("Not found");
-        const data = await r.json();
+        const data = await getArtwork(id);
         setArtwork(data);
         setComments(data.comments || []);
       } catch {
         toast.error("Artwork not found");
-        router.push("/browse-artworks");
+        await redirectFromArtworkPage("/browse-artworks");
       } finally {
         setLoading(false);
       }
     })();
-  }, [id, router]);
+  }, [id]);
 
   /* check if user has purchased */
   useEffect(() => {
     if (!user?.email || !id) return;
-    fetch(`${API}/transactions/user/${encodeURIComponent(user.email)}`)
-      .then(r => r.json())
+    getUserTransactions(user.email)
       .then(txns => {
         if (Array.isArray(txns)) {
           setHasPurchased(txns.some(t => t.artworkId === id && t.status === "completed"));
         }
       })
-      .catch(() => {});
+      .catch((error) => console.error("Failed to check purchase history:", error));
   }, [user, id]);
 
   /* wishlist toggle */
@@ -228,44 +233,33 @@ export default function ArtworkDetailPage() {
     if (!user?.email) { toast.info("Please sign in to save artworks"); return; }
     setIsLiked(prev => !prev);
     try {
-      await fetch(`${API}/users/wishlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, artworkId: id }),
-      });
-    } catch { setIsLiked(prev => !prev); }
+      await toggleUserWishlist({ email: user.email, artworkId: id });
+    } catch (error) {
+      setIsLiked(prev => !prev);
+      toast.error(error.message || "Failed to update wishlist");
+    }
   };
 
   /* purchase */
   const handlePurchase = async () => {
-    if (!user?.email) { toast.info("Please sign in to purchase"); router.push("/log-in"); return; }
+    if (!user?.email) { toast.info("Please sign in to purchase"); await redirectFromArtworkPage("/log-in?redirect=/artworks/" + id); return; }
     if (!artwork) return;
     setIsPurchasing(true);
     try {
-      const r = await fetch(`${API}/payments/create-checkout-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "purchase",
-          artworkId: artwork._id || id,
-          buyerEmail: user.email,
-          buyerName: user.name || "Collector",
-        }),
+      const data = await createCheckoutSession({
+        type: "purchase",
+        artworkId: artwork._id || id,
+        buyerEmail: user.email,
+        buyerName: user.name || "Collector",
       });
-      const data = await r.json();
-      if (!r.ok) {
-        if (data.upgradeRequired) {
-          toast.error(data.error);
-          router.push("/dashboard/user/subscription");
-        } else {
-          toast.error(data.error || "Payment failed");
-        }
-        return;
-      }
-      // Simulated checkout: redirect to success URL
-      router.push(data.url);
+      redirectToCheckout(data.url);
     } catch (e) {
-      toast.error("Failed to initiate purchase");
+      if (e.data?.upgradeRequired) {
+        toast.error(e.message);
+        await redirectFromArtworkPage("/dashboard/user/subscription");
+      } else {
+        toast.error(e.message || "Failed to initiate purchase");
+      }
     } finally {
       setIsPurchasing(false);
     }
@@ -278,19 +272,13 @@ export default function ArtworkDetailPage() {
     if (!commentText.trim()) return;
     setSubmittingComment(true);
     try {
-      const r = await fetch(`${API}/artworks/${id}/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.id,
-          userEmail: user.email,
-          userName: user.name || "Collector",
-          userImage: user.image,
-          comment: commentText.trim(),
-        }),
+      const data = await createArtworkComment(id, {
+        userId: user.id,
+        userEmail: user.email,
+        userName: user.name || "Collector",
+        userImage: user.image,
+        comment: commentText.trim(),
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Failed");
       setComments(prev => [data.comment, ...prev]);
       setCommentText("");
       toast.success("Comment posted!");
@@ -304,12 +292,7 @@ export default function ArtworkDetailPage() {
   /* delete comment */
   const handleDeleteComment = async (commentId) => {
     try {
-      const r = await fetch(`${API}/artworks/comments/${commentId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userEmail: user?.email }),
-      });
-      if (!r.ok) throw new Error((await r.json()).error);
+      await deleteArtworkComment(commentId, user?.email);
       setComments(prev => prev.filter(c => c._id !== commentId));
       toast.success("Comment removed");
     } catch (e) {

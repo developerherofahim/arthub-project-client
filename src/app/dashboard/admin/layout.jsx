@@ -3,13 +3,15 @@
 import Sidebar from "@/components/admin/Sidebar";
 import TopBar from "@/components/admin/TopBar";
 import { useState } from "react";
+import RoleGuard from "@/components/auth/RoleGuard";
 
 
 export default function DashboardLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-art-background">
+    <RoleGuard allowedRoles={["admin"]}>
+      <div className="flex min-h-screen bg-art-background">
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -23,6 +25,7 @@ export default function DashboardLayout({ children }) {
           {children}
         </main>
       </div>
-    </div>
+      </div>
+    </RoleGuard>
   );
 }

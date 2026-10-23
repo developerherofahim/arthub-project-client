@@ -2,18 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Users, Palette, Package, DollarSign, Loader2 } from "lucide-react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getAdminAnalytics } from "@/lib/api";
 
 export default function StatsCards() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/analytics/admin`)
-      .then(r => r.json())
-      .then(data => setAnalytics(data))
-      .catch(() => {})
+    getAdminAnalytics()
+      .then(setAnalytics)
+      .catch((error) => console.error("Failed to fetch admin analytics:", error))
       .finally(() => setLoading(false));
   }, []);
 

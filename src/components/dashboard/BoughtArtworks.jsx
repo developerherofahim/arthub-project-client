@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { getUserTransactions } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2, ShoppingBag, ArrowUpRight } from "lucide-react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function BoughtArtworks() {
   const { data: session } = authClient.useSession();
@@ -17,8 +16,7 @@ export default function BoughtArtworks() {
 
   useEffect(() => {
     if (!user?.email) return;
-    fetch(`${API}/transactions/user/${encodeURIComponent(user.email)}`)
-      .then(r => r.json())
+    getUserTransactions(user.email)
       .then(txns => {
         if (Array.isArray(txns)) {
           // Deduplicate by artworkId
@@ -31,7 +29,7 @@ export default function BoughtArtworks() {
           setArtworks(unique);
         }
       })
-      .catch(() => {})
+      .catch((error) => console.error("Failed to fetch purchased artworks:", error))
       .finally(() => setLoading(false));
   }, [user?.email]);
 

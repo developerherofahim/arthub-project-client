@@ -121,6 +121,7 @@ export default function LogInForm() {
         else router.push("/");
         router.refresh();
       }, 500);
+    } catch (error) {
       console.error("Sign in error:", error);
 
       const message =

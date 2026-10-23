@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { getAdminAnalytics } from "@/lib/api";
 
 const COLORS = ["#e4574f", "#d97a72", "#c94a43", "#e8a09a", "#b83832", "#f0c4bf", "#962c27", "#f4a261", "#2a9d8f"];
 
@@ -12,18 +13,14 @@ export default function CategoryDonutChart() {
   useEffect(() => {
     async function loadData() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/analytics/admin`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json.categoryDistribution && json.categoryDistribution.length > 0) {
-            const formatted = json.categoryDistribution.map((item, index) => ({
-              name: item.name,
-              value: item.value,
-              color: COLORS[index % COLORS.length],
-            }));
-            setData(formatted);
-          }
+        const json = await getAdminAnalytics();
+        if (json.categoryDistribution && json.categoryDistribution.length > 0) {
+          const formatted = json.categoryDistribution.map((item, index) => ({
+            name: item.name,
+            value: item.value,
+            color: COLORS[index % COLORS.length],
+          }));
+          setData(formatted);
         }
       } catch (err) {
         console.error("Failed to fetch categories:", err);

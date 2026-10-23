@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { authClient } from '@/lib/auth-client';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const TopBar = ({onMenuClick}) => {
     const { data: session } = authClient.useSession();
@@ -35,6 +36,8 @@ const TopBar = ({onMenuClick}) => {
             </div>
 
             <div className="flex items-center gap-3 sm:gap-4">
+                <ThemeToggle />
+
                 {/* Add New Artwork button */}
                 <Link href="/dashboard/artist/artworks/new" className="flex items-center cursor-pointer gap-1.5 rounded-full bg-[var(--color-art-primary)] px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-art-primary-hover)] sm:px-4">
                     <Plus size={16} strokeWidth={2.5} />

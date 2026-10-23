@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { AlertCircle, RefreshCw, Home } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function GlobalError({ error, reset }) {
   useEffect(() => {
@@ -11,6 +12,9 @@ export default function GlobalError({ error, reset }) {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-art-background px-4 py-16 text-center">
+      <div className="fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
+        <ThemeToggle />
+      </div>
       <div className="mx-auto max-w-md">
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-art-primary ring-8 ring-red-50/50">
           <AlertCircle size={40} strokeWidth={1.5} />

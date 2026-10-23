@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { getArtistTransactions } from "@/lib/api";
 
 export default function RecentSales() {
   const { data: session } = authClient.useSession();
@@ -17,12 +18,8 @@ export default function RecentSales() {
         return;
       }
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/transactions/artist/${encodeURIComponent(user.email)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setSales(data);
-        }
+        const data = await getArtistTransactions(user.email);
+        setSales(data);
       } catch (err) {
         console.error("Failed to fetch artist sales:", err);
       } finally {
@@ -55,9 +52,9 @@ export default function RecentSales() {
           <p className="mt-2 text-xs text-art-muted">Loading transaction records...</p>
         </div>
       ) : sales.length === 0 ? (
-        <div className="p-12 text-center">
+        <div className="p-12 text-center flex flex-col items-center justify-center gap-2">
           <p className="font-art-display text-lg font-medium text-art-text">No Sales Recorded Yet</p>
-          <p className="mt-1 text-xs text-art-muted max-w-sm mx-auto">
+          <p className="mt-1 text-center text-xs text-art-muted max-w-sm mx-auto">
             When collectors purchase your original artworks via Stripe Checkout, your completed transactions will appear here.
           </p>
         </div>

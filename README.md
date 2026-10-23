@@ -85,8 +85,9 @@ Configuration keys are securely loaded via `.env.local`:
 # Backend API Base URL
 NEXT_PUBLIC_API_URL=http://localhost:5000
 
-# Client App URL
+# Public URL of the Next.js app; configure the same value in the backend
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:3000
 
 # BetterAuth Secret (32+ character random string)
 BETTER_AUTH_SECRET=your_better_auth_secret_here
@@ -95,20 +96,40 @@ BETTER_AUTH_SECRET=your_better_auth_secret_here
 IMGBB_API_KEY=your_imgbb_api_key_here
 ```
 
+## 🔐 JWT and role checks
+
+Better Auth issues a short-lived JWT for signed-in users. Private frontend API
+requests get that token from Better Auth and send it as
+`Authorization: Bearer <token>`. The backend verifies its signature using the
+public Better Auth JWKS endpoint and checks the user's current role in MongoDB.
+The dashboard role guard improves navigation, but the backend remains the
+security boundary.
+
+New accounts can choose the collector or artist role. Admin privileges are
+assigned only by an existing administrator from user management. The backend
+allows collectors to manage their own profile, wishlist, purchases, and
+comments; artists can additionally manage their own artworks and sales data;
+administrators can manage platform-wide data.
+
+For local development, set `BETTER_AUTH_URL` to the frontend origin in both
+repositories. The backend also needs `FRONTEND_URL` for browser CORS and
+`NEXT_PUBLIC_API_URL` on the frontend to point to the backend.
+
 ---
 
 ## 🚀 Getting Started Locally
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/arthub-project-client.git
-cd arthub-project-client
-
-# Install dependencies
+# Terminal 1: from the backend repository root
+cd path/to/arthub-project-server
 npm install
+npm run dev
 
-# Start local Next.js development server
+# Terminal 2: from this client repository root
+cd path/to/arthub-project-client
+npm install
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+The backend must stay running at `http://localhost:5000` while using the local app.

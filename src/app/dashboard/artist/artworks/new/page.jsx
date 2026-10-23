@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
+import { createArtwork, uploadArtworkImage } from "@/lib/api";
 import {
   ArrowLeft,
   UploadCloud,
@@ -49,8 +50,6 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 /* =========================================================
    PAGE
 ========================================================= */
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function AddArtworkPage() {
   const { data: session } = authClient.useSession();
@@ -120,9 +119,8 @@ export default function AddArtworkPage() {
     if (!selectedFile) { setUploadError("Please select an image first."); return null; }
     const formData = new FormData();
     formData.append("image", selectedFile);
-    const res  = await fetch("/api/upload-imgbb", { method: "POST", body: formData });
-    const data = await res.json();
-    if (!res.ok || !data?.success) throw new Error(data?.error || "Image upload failed.");
+    const data = await uploadArtworkImage(formData);
+    if (!data?.success) throw new Error(data?.error || "Image upload failed.");
     setUploadedUrl(data.url);
     return data.url;
   };
@@ -163,13 +161,7 @@ export default function AddArtworkPage() {
         artistEmail: user?.email || "",
         featured:    false,
       };
-      const r = await fetch(`${API}/artworks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(artworkData),
-      });
-      const result = await r.json();
-      if (!r.ok) throw new Error(result.error || "Failed to save artwork.");
+      await createArtwork(artworkData);
       toast.success("Artwork published successfully!");
       setTimeout(() => {
         router.push("/dashboard/artist");

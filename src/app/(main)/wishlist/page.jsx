@@ -6,6 +6,7 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Heart, Trash2, ArrowUpRight, ShoppingBag } from "lucide-react";
 import { toast } from "react-toastify";
+import { getUserWishlist, toggleUserWishlist } from "@/lib/api";
 
 export default function WishlistPage() {
   const { data: session, isPending } = authClient.useSession();
@@ -21,12 +22,8 @@ export default function WishlistPage() {
         return;
       }
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/users/wishlist?email=${encodeURIComponent(user.email)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setItems(data);
-        }
+        const data = await getUserWishlist(user.email);
+        setItems(data);
       } catch (err) {
         console.error("Failed to load wishlist:", err);
       } finally {
@@ -41,16 +38,9 @@ export default function WishlistPage() {
   const handleRemove = async (artworkId) => {
     if (!user?.email) return;
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const res = await fetch(`${apiUrl}/users/wishlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, artworkId }),
-      });
-      if (res.ok) {
-        setItems((prev) => prev.filter((item) => (item._id || item.id) !== artworkId));
-        toast.info("Removed from your wishlist");
-      }
+      await toggleUserWishlist({ email: user.email, artworkId });
+      setItems((prev) => prev.filter((item) => (item._id || item.id) !== artworkId));
+      toast.info("Removed from your wishlist");
     } catch (err) {
       toast.error("Failed to update wishlist");
     }

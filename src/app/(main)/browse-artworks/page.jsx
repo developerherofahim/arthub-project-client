@@ -7,8 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Search, SlidersHorizontal, Heart, ArrowUpDown, Sparkles, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "react-toastify";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getArtworks, getUserProfile, toggleUserWishlist } from "@/lib/api";
 
 const categories = ["All", "Painting", "Sculpture", "Photography", "Digital Art", "Abstract", "Mixed Media", "Drawing", "Print", "Fine Art", "Contemporary", "Minimal"];
 
@@ -49,16 +48,15 @@ function BrowseArtworksContent() {
       params.set("page", page.toString());
       params.set("limit", "8");
 
-      const r = await fetch(`${API}/artworks?${params}`);
-      if (!r.ok) throw new Error();
-      const data = await r.json();
+      const data = await getArtworks(params);
       setArtworks(Array.isArray(data.artworks) ? data.artworks : []);
       setTotal(data.total || 0);
       setTotalPages(data.totalPages || 1);
-    } catch {
+    } catch (error) {
       setArtworks([]);
       setTotal(0);
       setTotalPages(1);
+      console.error("Failed to fetch artworks:", error);
     } finally {
       setLoading(false);
     }
@@ -74,18 +72,17 @@ function BrowseArtworksContent() {
     async function loadUserWishlist() {
       if (!user?.email) return;
       try {
-        const res = await fetch(`${API}/users/profile?email=${encodeURIComponent(user.email)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data.wishlist)) {
-            const map = {};
-            data.wishlist.forEach((id) => {
-              map[id] = true;
-            });
-            setLikedArtworks(map);
-          }
+        const data = await getUserProfile(user.email);
+        if (Array.isArray(data.wishlist)) {
+          const map = {};
+          data.wishlist.forEach((id) => {
+            map[id] = true;
+          });
+          setLikedArtworks(map);
         }
-      } catch { /* silent */ }
+      } catch (error) {
+        console.error("Failed to load wishlist:", error);
+      }
     }
     loadUserWishlist();
   }, [user?.email]);
@@ -114,15 +111,10 @@ function BrowseArtworksContent() {
     setLikedArtworks((prev) => ({ ...prev, [artworkId]: !isCurrentlyLiked }));
 
     try {
-      const res = await fetch(`${API}/users/wishlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, artworkId }),
-      });
-      if (res.ok) {
-        toast.success(isCurrentlyLiked ? "Removed from wishlist" : "Saved to wishlist!");
-      }
-    } catch {
+      await toggleUserWishlist({ email: user.email, artworkId });
+      toast.success(isCurrentlyLiked ? "Removed from wishlist" : "Saved to wishlist!");
+    } catch (error) {
+      setLikedArtworks((prev) => ({ ...prev, [artworkId]: isCurrentlyLiked }));
       toast.error("Failed to update wishlist");
     }
   };

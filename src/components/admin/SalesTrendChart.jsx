@@ -6,22 +6,20 @@ import {
   Tooltip, ResponsiveContainer,
 } from "recharts";
 import { Loader2 } from "lucide-react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getAdminAnalytics } from "@/lib/api";
 
 export default function SalesTrendChart() {
   const [data, setData]     = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API}/analytics/admin`)
-      .then(r => r.json())
+    getAdminAnalytics()
       .then(d => {
         if (Array.isArray(d.salesTrend) && d.salesTrend.length > 0) {
           setData(d.salesTrend.map(m => ({ month: m.month, sales: m.sales })));
         }
       })
-      .catch(() => {})
+      .catch((error) => console.error("Failed to fetch sales trend:", error))
       .finally(() => setLoading(false));
   }, []);
 

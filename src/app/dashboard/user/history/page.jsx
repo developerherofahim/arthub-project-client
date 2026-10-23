@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { History, ArrowUpRight, Loader2, Package } from "lucide-react";
 import Link from "next/link";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getUserTransactions } from "@/lib/api";
 
 export default function PurchaseHistoryPage() {
   const { data: session } = authClient.useSession();
@@ -16,10 +15,9 @@ export default function PurchaseHistoryPage() {
 
   useEffect(() => {
     if (!user?.email) return;
-    fetch(`${API}/transactions/user/${encodeURIComponent(user.email)}`)
-      .then(r => r.json())
+    getUserTransactions(user.email)
       .then(data => setTransactions(Array.isArray(data) ? data : []))
-      .catch(() => {})
+      .catch((error) => console.error("Failed to fetch purchase history:", error))
       .finally(() => setLoading(false));
   }, [user?.email]);
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import {
   Menu,
@@ -13,8 +13,8 @@ import {
   ArrowUpRight,
   LayoutDashboard,
   Heart,
-  Sun,
   Moon,
+  Sun,
 } from "lucide-react";
 
 import {
@@ -23,6 +23,8 @@ import {
 } from "@heroui/react";
 
 import { authClient } from "@/lib/auth-client";
+import { useTheme } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /* =========================================================
    NAVIGATION CONFIG
@@ -56,27 +58,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("arthub_theme");
-    if (saved === "dark") {
-      document.documentElement.classList.add("dark");
-      setDarkMode(true);
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("arthub_theme", "light");
-      setDarkMode(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("arthub_theme", "dark");
-      setDarkMode(true);
-    }
-  };
+  const { mounted, isDark, toggleTheme } = useTheme();
 
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
@@ -140,14 +122,7 @@ export default function Navbar() {
           {/* ========== RIGHT ACTIONS (Desktop) ========== */}
           <div className="ml-auto hidden items-center gap-2.5 md:flex">
             {/* Dark Mode Toggle */}
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              aria-label="Toggle dark mode"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-art-border bg-white text-art-secondary transition-all hover:border-art-primary/60 hover:text-art-primary"
-            >
-              {darkMode ? <Sun size={16} className="text-amber-500" /> : <Moon size={16} />}
-            </button>
+            <ThemeToggle />
 
             {/* Wishlist Link */}
             {user && (
@@ -345,12 +320,18 @@ export default function Navbar() {
               {/* Mobile theme toggle */}
               <button
                 type="button"
-                onClick={toggleDarkMode}
+                onClick={toggleTheme}
+                disabled={!mounted}
+                aria-pressed={mounted && isDark}
                 className="flex min-h-[60px] w-full items-center justify-between border-b border-white/10 font-art-body text-sm font-semibold uppercase tracking-[0.08em] text-white"
               >
                 <span className="flex items-center gap-3">
-                  {darkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} />}
-                  <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
+                  {mounted && isDark ? (
+                    <Sun size={18} className="text-amber-400" />
+                  ) : (
+                    <Moon size={18} />
+                  )}
+                  <span>{mounted && isDark ? "Light Mode" : "Dark Mode"}</span>
                 </span>
                 <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] text-white/80">Toggle</span>
               </button>

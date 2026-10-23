@@ -49,12 +49,101 @@
 }
 
 html.dark {
-  --color-art-background: #111111;
-  --color-art-white: #1c1c1c;
-  --color-art-text: #f5f5f5;
-  --color-art-secondary: #b5b0a8;
-  --color-art-muted: #8e8880;
-  --color-art-border: #2c2a27;
+  color-scheme: dark;
+  --color-art-black: #08090a;
+  --color-art-charcoal: #121416;
+  --color-art-primary: #f06a62;
+  --color-art-primary-hover: #ff8178;
+  --color-art-primary-soft: #402724;
+  --color-art-gold: #e2c27b;
+
+  --color-art-background: #0b0c0e;
+  --color-art-white: #15171a;
+  --color-art-text: #f3f0eb;
+  --color-art-secondary: #c1bbb3;
+  --color-art-muted: #918c85;
+  --color-art-border: #2a2d31;
+  --color-art-scrollbar: #3a3d42;
+}
+
+html:not(.dark) {
+  color-scheme: light;
+}
+
+html.dark body {
+  background-color: var(--color-art-background);
+}
+
+html.dark [class~="bg-white"]:not([data-selected="true"]) {
+  background-color: var(--color-art-white);
+}
+
+html.dark [class~="bg-white/85"],
+html.dark [class~="bg-white/90"] {
+  background-color: var(--color-art-white);
+}
+
+html.dark [class~="bg-gray-200"],
+html.dark [class~="bg-gray-100"],
+html.dark [class~="bg-gray-50"] {
+  background-color: #222529;
+}
+
+html.dark [class~="bg-red-50"],
+html.dark [class~="bg-red-50/50"],
+html.dark [class~="bg-amber-50"],
+html.dark [class~="bg-emerald-50"],
+html.dark [class~="bg-blue-50"] {
+  background-color: #242126;
+}
+
+html.dark [class~="text-[#171717]"] {
+  color: var(--color-art-text);
+}
+
+html.dark [class~="text-[#55514c]"] {
+  color: var(--color-art-secondary);
+}
+
+html.dark [class~="text-[#77736d]"] {
+  color: var(--color-art-muted);
+}
+
+html.dark [class~="border-[#e5e1da]"],
+html.dark [class~="border-[#f0ede8]"],
+html.dark [class~="border-[#d9d5ce]"] {
+  border-color: var(--color-art-border);
+}
+
+html.dark [class~="bg-[#f5f4f1]"],
+html.dark [class~="bg-[#f0ede8]"],
+html.dark [class~="bg-[#fff5f5]"],
+html.dark [class~="bg-[#fffaf9]"] {
+  background-color: #202226;
+}
+
+html.dark [class~="bg-[#fffaf7]"] {
+  background-color: #1b1a19;
+}
+
+html.dark .art-input {
+  border-color: var(--color-art-border);
+  background-color: var(--color-art-white);
+  color: var(--color-art-text);
+}
+
+html.dark .art-input::placeholder {
+  color: var(--color-art-muted);
+}
+
+html.dark .Toastify__toast {
+  background-color: var(--color-art-white);
+  color: var(--color-art-text);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 35%);
+}
+
+html.dark .Toastify__close-button {
+  color: var(--color-art-secondary);
 }
 
 :root {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import RecentSales from "@/components/artist-dashboard/RecentSales";
 import { authClient } from "@/lib/auth-client";
+import { getArtistAnalytics } from "@/lib/api";
 
 export default function ArtistSalesPage() {
   const { data: session } = authClient.useSession();
@@ -23,12 +24,8 @@ export default function ArtistSalesPage() {
         return;
       }
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/analytics/artist/${encodeURIComponent(user.email)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setStats(data);
-        }
+        const data = await getArtistAnalytics(user.email);
+        setStats(data);
       } catch (err) {
         console.error("Failed to fetch artist sales stats:", err);
       } finally {

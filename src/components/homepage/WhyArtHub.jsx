@@ -35,7 +35,7 @@ export default function WhyArtHub() {
           <h2 className="font-art-display text-4xl sm:text-5xl font-medium tracking-tight text-white mt-3">
             Democratizing Original Art for Collectors Worldwide
           </h2>
-          <p className="mt-4 font-art-body text-sm sm:text-base text-white/60">
+          <p className="pt-4 font-art-body text-sm sm:text-base text-white/60">
             A secure, streamlined, and transparent bridge between visionary artists and passionate collectors.
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function WhyArtHub() {
                 <h3 className="font-art-display text-xl font-semibold text-white">
                   {feat.title}
                 </h3>
-                <p className="mt-2 font-art-body text-xs text-white/60 leading-relaxed">
+                <p className="pt-2 font-art-body text-xs text-white/60 leading-relaxed">
                   {feat.description}
                 </p>
               </div>
@@ -68,7 +68,7 @@ export default function WhyArtHub() {
             <h3 className="font-art-display text-3xl font-semibold text-white">
               Are you an artist looking to share your voice?
             </h3>
-            <p className="mt-2 font-art-body text-sm text-white/70 max-w-xl">
+            <p className="pt-2 font-art-body text-sm text-white/70 max-w-xl">
               Join our global creator community, manage your portfolio, and sell directly to collectors with low platform fees.
             </p>
           </div>

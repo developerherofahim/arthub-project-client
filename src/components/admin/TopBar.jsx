@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Menu, Bell, ChevronDown } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function TopBar({ onMenuClick }) {
     const { data: session } = authClient.useSession();
@@ -34,6 +35,8 @@ export default function TopBar({ onMenuClick }) {
             </div>
 
             <div className="flex items-center gap-3 sm:gap-4">
+                <ThemeToggle />
+
                 {/* Notification */}
                 <button className="relative rounded-full p-2 text-[var(--color-art-secondary)] hover:bg-[var(--color-art-background)]">
                     <Bell size={20} />

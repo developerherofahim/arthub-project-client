@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Palette, DollarSign, ShoppingBag, Crown, Loader2 } from "lucide-react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getUserProfile, getUserTransactions } from "@/lib/api";
 
 const TIER_LIMITS = { free: 3, pro: 9, premium: 999 };
 
@@ -19,14 +18,14 @@ export default function StatsCards() {
   useEffect(() => {
     if (!user?.email) return;
     Promise.all([
-      fetch(`${API}/users/profile?email=${encodeURIComponent(user.email)}`).then(r => r.json()),
-      fetch(`${API}/transactions/user/${encodeURIComponent(user.email)}`).then(r => r.json()),
+      getUserProfile(user.email),
+      getUserTransactions(user.email),
     ])
       .then(([profileData, txnData]) => {
         setProfile(profileData);
         setTxns(Array.isArray(txnData) ? txnData : []);
       })
-      .catch(() => {})
+      .catch((error) => console.error("Failed to fetch collector statistics:", error))
       .finally(() => setLoading(false));
   }, [user?.email]);
 

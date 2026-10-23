@@ -4,8 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { MoreHorizontal, Loader2, User, Trash2, ShieldCheck, RefreshCw } from "lucide-react";
 import { toast } from "react-toastify";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import {
+  deleteArtwork as removeArtwork,
+  getAdminArtworks,
+  getAdminTransactions,
+  getAdminUsers,
+  updateUserRole,
+} from "@/lib/api";
 
 const tabs = ["Users", "Artworks", "Transactions"];
 
@@ -35,34 +40,28 @@ export default function ManageCollections() {
     setLoading(true);
     try {
       if (tab === "Users") {
-        const r = await fetch(`${API}/users`);
-        setUsers(await r.json());
+        setUsers(await getAdminUsers());
       } else if (tab === "Artworks") {
-        const r = await fetch(`${API}/artworks?limit=50`);
-        const d = await r.json();
+        const d = await getAdminArtworks(50);
         setArtworks(Array.isArray(d.artworks) ? d.artworks : []);
       } else {
-        const r = await fetch(`${API}/transactions`);
-        setTransactions(await r.json());
+        setTransactions(await getAdminTransactions());
       }
-    } catch {
-      toast.error("Failed to load data");
+    } catch (error) {
+      toast.error(error.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { fetchData(activeTab); }, [activeTab, fetchData]);
+  useEffect(() => {
+    void Promise.resolve().then(() => fetchData(activeTab));
+  }, [activeTab, fetchData]);
 
   const changeRole = async (userId, newRole) => {
     setActionLoading(prev => ({ ...prev, [userId]: true }));
     try {
-      const r = await fetch(`${API}/users/${userId}/role`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: newRole }),
-      });
-      if (!r.ok) throw new Error((await r.json()).error);
+      await updateUserRole(userId, newRole);
       setUsers(prev => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
       toast.success(`Role updated to ${newRole}`);
     } catch (e) {
@@ -76,8 +75,7 @@ export default function ManageCollections() {
     if (!confirm("Delete this artwork permanently?")) return;
     setActionLoading(prev => ({ ...prev, [id]: true }));
     try {
-      const r = await fetch(`${API}/artworks/${id}`, { method: "DELETE" });
-      if (!r.ok) throw new Error((await r.json()).error);
+      await removeArtwork(id);
       setArtworks(prev => prev.filter(a => a._id !== id));
       toast.success("Artwork deleted");
     } catch (e) {

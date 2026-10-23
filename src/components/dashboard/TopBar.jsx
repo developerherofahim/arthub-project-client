@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Menu, Crown } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function TopBar({ onMenuClick }) {
 
@@ -36,6 +37,8 @@ export default function TopBar({ onMenuClick }) {
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
+        <ThemeToggle />
+
         {/* Pro badge */}
         <div className="hidden items-center gap-1.5 rounded-full bg-art-primary/10 px-3 py-1.5 sm:flex">
           <Crown size={14} className="text-art-primary" />

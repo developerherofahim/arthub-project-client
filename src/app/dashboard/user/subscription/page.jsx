@@ -6,8 +6,12 @@ import { Check, Crown, Loader2, Sparkles, Star } from "lucide-react";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import {
+  createCheckoutSession,
+  getUserProfile,
+  verifyPayment,
+} from "@/lib/api";
+import { redirectToCheckout } from "@/lib/stripe-checkout";
 
 const TIERS = [
   {
@@ -60,28 +64,30 @@ function SubscriptionContent() {
     if (success === "true" && sessionId && user?.email && tier) {
       (async () => {
         try {
-          const r = await fetch(`${API}/payments/verify-payment`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sessionId, type: "subscription", tier, buyerEmail: user.email, buyerName: user.name }),
+          const data = await verifyPayment({
+            sessionId,
+            type: "subscription",
+            tier,
+            buyerEmail: user.email,
+            buyerName: user.name,
           });
-          const data = await r.json();
           if (data.success) {
             setProfile(prev => prev ? { ...prev, subscriptionTier: data.tier } : { subscriptionTier: data.tier });
             toast.success(`🎉 Welcome to ${data.tier.charAt(0).toUpperCase() + data.tier.slice(1)}!`);
             router.replace("/dashboard/user/subscription");
           }
-        } catch (_) {}
+        } catch (error) {
+          console.error("Failed to verify subscription payment:", error);
+        }
       })();
     }
   }, [searchParams, user, router]);
 
   useEffect(() => {
     if (!user?.email) return;
-    fetch(`${API}/users/profile?email=${encodeURIComponent(user.email)}`)
-      .then(r => r.json())
+    getUserProfile(user.email)
       .then(setProfile)
-      .catch(() => {})
+      .catch((error) => console.error("Failed to load subscription profile:", error))
       .finally(() => setLoading(false));
   }, [user?.email]);
 
@@ -89,14 +95,13 @@ function SubscriptionContent() {
     if (!user?.email) { toast.info("Please sign in first"); return; }
     setUpgrading(tierId);
     try {
-      const r = await fetch(`${API}/payments/create-checkout-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "subscription", tier: tierId, buyerEmail: user.email, buyerName: user.name }),
+      const data = await createCheckoutSession({
+        type: "subscription",
+        tier: tierId,
+        buyerEmail: user.email,
+        buyerName: user.name,
       });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error);
-      router.push(data.url);
+      redirectToCheckout(data.url);
     } catch (e) {
       toast.error(e.message || "Upgrade failed");
     } finally {

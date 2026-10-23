@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { uploadImageToImgBB } from "@/lib/api/server";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
@@ -14,7 +14,7 @@ export async function POST(request) {
   try {
     // 1. Authenticate user session
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: request.headers,
     });
 
     if (!session?.user) {
@@ -26,6 +26,13 @@ export async function POST(request) {
         {
           status: 401,
         }
+      );
+    }
+
+    if (!["artist", "admin"].includes(session.user.role)) {
+      return NextResponse.json(
+        { success: false, error: "Only artists can upload artwork images." },
+        { status: 403 },
       );
     }
 
@@ -74,58 +81,8 @@ export async function POST(request) {
       );
     }
 
-    // 7. Get ImgBB API key
-    const apiKey = process.env.IMGBB_API_KEY;
-
-    if (!apiKey) {
-      console.error("IMGBB_API_KEY is missing.");
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Server configuration error.",
-        },
-        {
-          status: 500,
-        }
-      );
-    }
-
-    // 8. Create FormData for ImgBB
-    const imgbbFormData = new FormData();
-
-    imgbbFormData.append("image", file);
-    imgbbFormData.append(
-      "name",
-      file.name || "artwork"
-    );
-
-    // 9. Upload to ImgBB
-    const response = await fetch(
-      `https://api.imgbb.com/1/upload?key=${apiKey}`,
-      {
-        method: "POST",
-        body: imgbbFormData,
-      }
-    );
-
-    // 10. Parse response
-    const data = await response.json();
-
-    // 11. Handle ImgBB error
-    if (!response.ok || !data.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            data?.error?.message ||
-            "Image upload to ImgBB failed.",
-        },
-        {
-          status: 500,
-        }
-      );
-    }
+    // 7. Upload to ImgBB
+    const data = await uploadImageToImgBB(file);
 
     // 12. Return required data
     return NextResponse.json({

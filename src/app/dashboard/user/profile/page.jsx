@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { getUserProfile, updateUserProfile } from "@/lib/api";
 
 export default function UserProfilePage() {
   const { data: session } = authClient.useSession();
@@ -22,14 +23,10 @@ export default function UserProfilePage() {
         return;
       }
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/users/profile?email=${encodeURIComponent(user.email)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setName(data.name || user.name || "");
-          setBio(data.bio || "Passionate art collector interested in original paintings and sculptural forms.");
-          setAvatar(data.image || user.image || "");
-        }
+        const data = await getUserProfile(user.email);
+        setName(data.name || user.name || "");
+        setBio(data.bio || "Passionate art collector interested in original paintings and sculptural forms.");
+        setAvatar(data.image || user.image || "");
       } catch (err) {
         console.error("Failed to load profile:", err);
       } finally {
@@ -44,24 +41,15 @@ export default function UserProfilePage() {
     if (!user?.email) return;
     setSaving(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const res = await fetch(`${apiUrl}/users/profile`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: user.email,
-          name,
-          bio,
-          image: avatar,
-        }),
+      await updateUserProfile({
+        email: user.email,
+        name,
+        bio,
+        image: avatar,
       });
-      if (res.ok) {
-        toast.success("Collector profile updated successfully!");
-      } else {
-        toast.error("Failed to update profile");
-      }
+      toast.success("Collector profile updated successfully!");
     } catch (err) {
-      toast.error("Network error updating profile");
+      toast.error(err.message || "Network error updating profile");
     } finally {
       setSaving(false);
     }

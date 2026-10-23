@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Sparkles, Heart } from "lucide-react";
+import { getFeaturedArtworks } from "@/lib/api";
 
 export default function FeaturedArtworks() {
   const [artworks, setArtworks] = useState([]);
@@ -12,13 +13,9 @@ export default function FeaturedArtworks() {
   useEffect(() => {
     async function fetchFeatured() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${apiUrl}/artworks/featured`, { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setArtworks(data);
-          }
+        const data = await getFeaturedArtworks();
+        if (Array.isArray(data) && data.length > 0) {
+          setArtworks(data);
         }
       } catch (err) {
         console.error("Error fetching featured artworks:", err);
@@ -42,7 +39,7 @@ export default function FeaturedArtworks() {
             <h2 className="font-art-display text-4xl sm:text-5xl font-semibold tracking-tight text-art-text">
               Featured Artworks
             </h2>
-            <p className="mt-2 font-art-body text-sm text-art-secondary max-w-xl">
+            <p className="pt-2 font-art-body text-sm text-art-secondary max-w-xl">
               Hand-selected original masterpieces from visionary contemporary artists, updated dynamically with each visit.
             </p>
           </div>
