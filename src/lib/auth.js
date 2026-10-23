@@ -3,16 +3,31 @@ import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { jwt } from "better-auth/plugins";
 
+const isDevelopment = process.env.NODE_ENV === "development";
+if (!isDevelopment && !process.env.MONGO_URI) {
+  throw new Error("MONGO_URI must be configured outside development.");
+}
+
 const uri = process.env.MONGO_URI || "mongodb://localhost:27017";
+const configuredAuthBaseURL =
+  process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+if (!isDevelopment && !configuredAuthBaseURL) {
+  throw new Error(
+    "BETTER_AUTH_URL or NEXT_PUBLIC_APP_URL must be configured outside development.",
+  );
+}
+
 const authBaseURL =
-  process.env.BETTER_AUTH_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "http://localhost:3000";
+  configuredAuthBaseURL || "http://localhost:3000";
 const authIssuer = new URL(authBaseURL).origin;
+
+if (!process.env.BETTER_AUTH_SECRET && !isDevelopment) {
+  throw new Error("BETTER_AUTH_SECRET must be configured outside development.");
+}
 
 let client;
 
-if (process.env.NODE_ENV === "development") {
+if (isDevelopment) {
   if (!global._mongoClient) {
     global._mongoClient = new MongoClient(uri);
   }

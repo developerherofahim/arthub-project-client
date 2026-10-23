@@ -330,7 +330,7 @@ export default function Hero() {
     "
             >
               <Link
-                href="#"
+                href="/browse-artworks"
                 className="
         group
         flex

@@ -1,6 +1,14 @@
 import { authClient } from "@/lib/auth-client";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+if (
+  process.env.NODE_ENV !== "development" &&
+  !process.env.NEXT_PUBLIC_API_URL
+) {
+  throw new Error("NEXT_PUBLIC_API_URL must be configured for production.");
+}
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 async function requestJson(url, options, authenticated = false) {
   const headers = new Headers(options?.headers);

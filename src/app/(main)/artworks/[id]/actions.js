@@ -2,9 +2,18 @@
 
 import { redirect } from "next/navigation";
 
-const frontendOrigin = new URL(
-  process.env.FRONTEND_URL || "http://localhost:3000",
-).origin;
+const frontendUrl =
+  process.env.FRONTEND_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.BETTER_AUTH_URL;
+
+if (!frontendUrl && process.env.NODE_ENV !== "development") {
+  throw new Error(
+    "FRONTEND_URL, NEXT_PUBLIC_APP_URL, or BETTER_AUTH_URL must be configured for production.",
+  );
+}
+
+const frontendOrigin = new URL(frontendUrl || "http://localhost:3000").origin;
 
 export async function redirectFromArtworkPage(destination) {
   if (typeof destination !== "string") {

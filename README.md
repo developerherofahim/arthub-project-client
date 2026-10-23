@@ -79,22 +79,41 @@ Traditional fine art distribution is often restricted to physical galleries, opa
 
 ## 🔒 Environment Variables
 
-Configuration keys are securely loaded via `.env.local`:
+Copy `.env.example` to `.env.local` for local development. For production,
+configure the variables in the Vercel project settings; do not commit secrets.
+`NEXT_PUBLIC_*` values are embedded in the client bundle at build time, so
+redeploy after changing them.
 
-```env
-# Backend API Base URL
-NEXT_PUBLIC_API_URL=http://localhost:5000
+## 🚀 Deploying to Vercel
 
-# Public URL of the Next.js app; configure the same value in the backend
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-BETTER_AUTH_URL=http://localhost:3000
+1. Import this repository into Vercel. Keep the project root at the repository
+   root and use the detected Next.js framework settings. The build command is
+   `npm run build`; no static-export setting or custom start command is needed.
+2. Add the production environment variables in **Project Settings → Environment
+   Variables**:
+   - `MONGO_URI`: production MongoDB connection string. Configure MongoDB network
+     access for the Vercel deployment.
+   - `BETTER_AUTH_SECRET`: a unique, random secret of at least 32 characters.
+   - `BETTER_AUTH_URL` and `NEXT_PUBLIC_APP_URL`: the same HTTPS URL for this
+     Vercel deployment or custom domain.
+   - `NEXT_PUBLIC_API_URL`: the HTTPS base URL of the deployed backend API
+     (no trailing slash). The frontend requires the separate backend service.
+   - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: required for Google sign-in.
+     Register `https://<your-domain>/api/auth/callback/google` as an authorized
+     redirect URI in the Google OAuth client.
+   - `IMGBB_API_KEY`: required for artwork image uploads.
+   - `FRONTEND_URL`: optional; defaults to `NEXT_PUBLIC_APP_URL`, then
+     `BETTER_AUTH_URL`. Set it to the same frontend HTTPS URL if using a custom
+     frontend origin.
+3. Configure the backend's frontend/CORS origin to the exact deployed frontend
+   URL, then redeploy the Vercel project after all environment variables are
+   set.
+4. Verify sign-up/sign-in, Google OAuth, artwork browsing against the backend,
+   image uploads, and checkout redirects on the deployed domain.
 
-# BetterAuth Secret (32+ character random string)
-BETTER_AUTH_SECRET=your_better_auth_secret_here
-
-# ImgBB API Key for artwork image hosting
-IMGBB_API_KEY=your_imgbb_api_key_here
-```
+The application uses server routes for authentication and image uploads and
+requires runtime server functionality; do not enable static export. Local
+development can use the localhost defaults in `.env.example`.
 
 ## 🔐 JWT and role checks
 

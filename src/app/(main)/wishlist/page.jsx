@@ -55,22 +55,22 @@ export default function WishlistPage() {
             <Heart size={13} className="fill-art-primary text-art-primary" />
             Curated Collection
           </div>
-          <h1 className="mt-3 font-art-display text-3xl font-semibold tracking-tight text-art-text sm:text-5xl">
+          <h1 className="pt-3 font-art-display text-3xl font-semibold tracking-tight text-art-text sm:text-5xl">
             My Saved Artworks
           </h1>
-          <p className="mt-2 text-sm text-art-secondary sm:text-base">
+          <p className="pt-2 text-sm text-art-secondary sm:text-base">
             Original pieces you have bookmarked for your personal collection.
           </p>
         </div>
 
         {/* Content */}
         {!user && !isPending ? (
-          <div className="rounded-3xl border border-art-border bg-white p-12 text-center shadow-xs">
+          <div className="flex flex-col items-center rounded-3xl border border-art-border bg-white p-12 text-center shadow-xs">
             <Heart size={40} className="mx-auto text-art-muted" />
             <h2 className="mt-4 font-art-display text-2xl font-semibold text-art-text">
               Sign In to View Your Wishlist
             </h2>
-            <p className="mt-1 text-sm text-art-secondary">
+            <p className="mt-1 max-w-2xl text-sm text-art-secondary">
               Keep track of original paintings, sculptures, and digital editions across sessions.
             </p>
             <Link
@@ -91,12 +91,12 @@ export default function WishlistPage() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-3xl border border-art-border bg-white p-12 text-center shadow-xs">
+          <div className="flex flex-col items-center rounded-3xl border border-art-border bg-white p-12 text-center shadow-xs">
             <ShoppingBag size={42} className="mx-auto text-art-muted" strokeWidth={1.5} />
             <h2 className="mt-4 font-art-display text-2xl font-semibold text-art-text">
               Your Wishlist is Empty
             </h2>
-            <p className="mt-1 text-sm text-art-secondary max-w-md mx-auto">
+            <p className="mx-auto mt-1 max-w-md text-sm text-art-secondary">
               Explore our curated marketplace to discover museum-grade paintings, digital editions, and sculptures.
             </p>
             <Link
